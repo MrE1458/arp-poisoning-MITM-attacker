@@ -7,8 +7,8 @@ import threading
 default_gateway_ip = "192.168.1.254"
 gateway_mac = "F8:22:29:26:79:70"
 
-victim_mac = "58:a8:e8:2c:3d:39"
-victim_ip = "192.168.1.120"
+victim_mac = "a2:37:41:b8:70:5f"
+victim_ip = "192.168.1.88"
 
 attacker_ip = "192.168.1.96"
 attacker_mac = "3C:55:76:DE:12:EF"

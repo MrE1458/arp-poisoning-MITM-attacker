@@ -1,0 +1,2 @@
+Ether / IP / UDP / DNS Qry b'www.google.com.'
+Ether / IP / ICMP 192.168.1.88 > 192.168.1.254 echo-request 0 / Raw
